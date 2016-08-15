@@ -8,6 +8,8 @@ var fs = require('fs');
 var mkdirp = require('mkdirp');
 var chalk = require('chalk');
 var watch = require('gulp-watch');
+var browserify = require('gulp-browserify');
+var babel = require('gulp-babel');
 
 //Chalk colors
 var error = chalk.bold.red;
@@ -23,11 +25,11 @@ gulp.task('watch', (done) => {
 
 gulp.task('init', (done) => {
 	//Create our directory structure
-	mkdirp('./src', function (err) {
-		mkdirp('./src/js', function (err) {
-			mkdirp('./src/html', function (err) {
-				mkdirp('./src/css', function (err) {
-					mkdirp('./src/assets', function (err) {
+	mkdirp('./src', function(err) {
+		mkdirp('./src/js', function(err) {
+			mkdirp('./src/html', function(err) {
+				mkdirp('./src/css', function(err) {
+					mkdirp('./src/assets', function(err) {
 						done();
 					});
 				});
@@ -36,16 +38,27 @@ gulp.task('init', (done) => {
 	});
 });
 
-gulp.task('build-js', (done) => {
-	return gulp.src('./src/js/**/*.js')
-	.pipe(concat('game.js'))
-	.pipe(uglify())
-	.pipe(gulp.dest('./build/'));
+gulp.task('compile-js', (done) => {
+	return gulp.src('src/js/*.js')
+		.pipe(babel({
+			presets: ['es2015']
+		}))
+		.pipe(gulp.dest('./temp/'));
 });
+
+gulp.task('build-js', gulp.series('compile-js', (done) => {
+	return gulp.src('./temp/index.js')
+		//.pipe(uglify())
+		.pipe(browserify())
+		//.pipe(uglify())
+		.pipe(gulp.dest('./build/'));
+}));
 
 gulp.task('build-html', (done) => {
 	return gulp.src('./src/html/**/*.html')
-		.pipe(htmlmin({collapseWhitespace: true}))
+		.pipe(htmlmin({
+			collapseWhitespace: true
+		}))
 		.pipe(gulp.dest('./build/'));
 });
 
