@@ -1,4 +1,10 @@
 body {
 	background:black;
 	color:#FFF;
+	text-align:center;
+}
+canvas {
+	width:1200 !important;
+	height:800 !important;
+	image-rendering:pixelated;
 }

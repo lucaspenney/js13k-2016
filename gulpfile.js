@@ -48,9 +48,9 @@ gulp.task('compile-js', (done) => {
 
 gulp.task('build-js', gulp.series('compile-js', (done) => {
 	return gulp.src('./temp/index.js')
-		//.pipe(uglify())
+		.pipe(uglify())
 		.pipe(browserify())
-		//.pipe(uglify())
+		.pipe(uglify())
 		.pipe(gulp.dest('./build/'));
 }));
 
@@ -70,7 +70,7 @@ gulp.task('build-css', (done) => {
 
 gulp.task('build-assets', (done) => {
 	return gulp.src('./src/assets/**/*')
-		.pipe(gulp.dest('./build/'));
+		.pipe(gulp.dest('./build/assets/'));
 });
 
 gulp.task('zip', (done) => {

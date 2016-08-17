@@ -1,13 +1,17 @@
 var Entity = require('./entity');
 var Physics = require('./physics');
 var BoundingBox = require('./boundingbox');
+var Sprite = require('./sprite');
+var Angle = require('./angle');
 
 class Player extends Entity {
 	constructor(game, x, y) {
 		super(game, x, y);
 		this.classname = "Player";
 		this.game = game;
-		this.physics = new Physics(this.game, this, new BoundingBox(this.game, this, 20, 20));
+		this.sprite = new Sprite(this, './assets/img/player.gif');
+		this.sprite.flipHorizontal = true;
+		this.physics = new Physics(this.game, this, new BoundingBox(this.game, this, 15, 15));
 		this.physics.gravity = true;
 		this.lastJump = 0;
 		this.jumpStep = 0;
@@ -19,14 +23,16 @@ class Player extends Entity {
 			this.jump();
 		}
 		if (input[37] || input[65]) { //left
-			if (this.physics.standing) {
-				this.physics.addVelocity(-0.12,0);
-			} else this.physics.addVelocity(-0.10,0);
+			this.sprite.flipHorizontal = true;
+			if (this.physics.standing) {			
+				this.physics.addVelocity(-0.11,0);
+			} else this.physics.addVelocity(-0.09,0);
 		}
 		if (input[39] || input[68]) { //right
-			if (this.physics.standing) {
-				this.physics.addVelocity(0.12,0);
-			} else this.physics.addVelocity(0.10, 0);
+			this.sprite.flipHorizontal = false;
+			if (this.physics.standing) { 
+				this.physics.addVelocity(0.11,0);
+			} else this.physics.addVelocity(0.09, 0);
 		}
 		if (input[40] || input[83]) { //down
 			//this.physics.addVelocity(0,0.2);
@@ -34,12 +40,14 @@ class Player extends Entity {
 
 		if (this.jumpStep > 0) {
 			this.jumpStep += 1;
-			this.physics.addVelocity(0, (15 - this.jumpStep) * -0.13);
-		}
+			this.physics.addVelocity(0, (15 - this.jumpStep) * -0.12);
+			(this.sprite.flipHorizontal) ? this.rotation.set(this.jumpStep * -1) : this.rotation.set(this.jumpStep);
+		} else this.rotation.set(0);
 	}
 	render(ctx, screen) {
-		ctx.fillStyle = "#FFF";
-		ctx.fillRect(this.pos.x, this.pos.y, 20, 20);
+		//Set the screen position
+		screen.setOffset(this.pos.clone());
+		this.sprite.draw(ctx, screen, this.pos.x, this.pos.y);
 	}
 	jump() {
 		if (Date.now() - this.lastJump > 500 && this.physics.standing) {

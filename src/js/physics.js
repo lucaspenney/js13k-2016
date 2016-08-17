@@ -11,8 +11,6 @@ class Physics {
 		this.maxVelocity = 7;
 		this.mass = 100;
 		this.bounds = bounds;
-		this.collidesWith = [];
-		this.hasCollided = [];
 		this.static = false;
 		this.timeScale = 1;
 		this.gravity = false;
@@ -53,15 +51,22 @@ class Physics {
 		this.accel = new Vector(0, 0);
 		this.ra = 0;
 		this.hasCollided = [];
+		if (Math.abs(this.vel.x) < 0.001) {
+			this.entity.pos.x = Math.round(this.entity.pos.x);	
+		}
+		if (Math.abs(this.vel.y) < 0.001) {
+			this.entity.pos.y = Math.round(this.entity.pos.y);	
+		}
+		
 	}
 	applyGravity() {
-		this.addVelocity(0, 0.12);
+		this.addVelocity(0, 0.14);
 	}
 	applyDrag() {
 		if (this.standing) {
-			this.vel.x *= 0.93;	
+			this.vel.x *= 0.96;	
 		} else {
-			this.vel.x *= 0.98;
+			this.vel.x *= 0.99;
 		}
 		this.vel.y *= 0.97;
 	}
@@ -70,7 +75,7 @@ class Physics {
 
 		//Try to fix
 		var v = velocity.clone();
-		v.y = 0;
+		v.y = 0; 
 		if (!this.bounds.wouldCollide(v, entity.physics)) {
 			this.entity.pos.add(v);
 			var pDiff = this.entity.pos.clone().subtract(entity.pos);
@@ -91,19 +96,15 @@ class Physics {
 		//this.eventManager.dispatch('post-collide', this.entity, entity);
 		//entity.physics.eventManager.dispatch('collision', entity.physics, this.entity);
 	}
-	addVelocity(x, y, r) {
+	addVelocity(x, y) {
 		x = x || 0;
 		y = y || 0;
-		r = r || 0;
 
 		if (this.vel.x > this.maxVelocity) this.vel.x = this.maxVelocity;
 		else if (this.vel.x < this.maxVelocity * -1) this.vel.x = this.maxVelocity * -1;
 
 		if (this.vel.y > this.maxVelocity) this.vel.y = this.maxVelocity;
 		else if (this.vel.y < this.maxVelocity * -1) this.vel.y = this.maxVelocity * -1;
-
-		if (this.rv > this.maxVelocity) this.rv = this.maxVelocity;
-		else if (this.rv < this.maxVelocity * -1) this.rv = this.maxVelocity * -1;
 
 		this.vel.x += x;
 		this.vel.y += y;

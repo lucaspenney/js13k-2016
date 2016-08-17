@@ -1,9 +1,223 @@
-var Goo=function(e){function h(){if(a.fullscreen){var b=window.innerWidth,c=window.innerHeight;a.canvas.width!=b&&(a.canvas.width=b);a.canvas.height!=c&&(a.canvas.height=c)}b=k();if(a.onDraw)a.onDraw(a,b);if(a.animate){if(60<f++){a.fps=1E3*(f/(b-l));if(a.onFrameRate)a.onFrameRate(a);f=0;l=b}m(h)}}var a=this;a.type="2d";a.animate=!0;a.fullscreen=!1;a.keysDown={};a.userData={};if(e)for(var g in e)e.hasOwnProperty(g)&&(a[g]=e[g]);a.canvas=document.createElement("canvas");a.canvas&&(a.ctx=a.canvas.getContext(a.type));
-if(!a.canvas||!a.ctx&&a.onFailure)a.onFailure();else{a.canvas.width=a.width;a.canvas.height=a.height;a.__defineGetter__&&a.__defineSetter__?(a.__defineGetter__("width",function(){return a.canvas.width}),a.__defineSetter__("width",function(b){a.canvas.width=b}),a.__defineGetter__("height",function(){return a.canvas.height}),a.__defineSetter__("height",function(b){a.canvas.height=b})):Object.defineProperty&&(Object.defineProperty(a,"width",{get:function(){return a.canvas.width},set:function(b){a.canvas.width=
-b}}),Object.defineProperty(a,"height",{get:function(){return a.canvas.height},set:function(b){a.canvas.height=b}}));a.fullscreen&&(a.container=document.body,document.body.style.margin="0px",document.body.style.padding="0px",document.body.style.overflow="hidden");a.container&&a.container.appendChild(a.canvas);var m=function(){var a=window.requestAnimationFrame||window.webkitRequestAnimationFrame||window.mozRequestAnimationFrame||window.oRequestAnimationFrame||window.msRequestAnimationFrame;a||(a=function(a){window.setTimeout(a,
-1E3/30)});return a}(),k=Date.now?Date.now:function(){return(new Date).getTime()};a.updateMouse=function(a,c){for(var d=this.canvas;d;)c-=d.offsetTop,a-=d.offsetLeft,d=d.offsetParent;this.prevMouseX=this.mouseX;this.prevMouseY=this.mouseY;this.mouseX=a;this.mouseY=c};document.addEventListener("mousedown",function(b){if(b.target==a.canvas){a.updateMouse(b.pageX,b.pageY);if(a.onMouseDown)a.onMouseDown(a);a.dragging=!0}},!1);document.addEventListener("mouseup",function(b){if(a.dragging){a.updateMouse(b.pageX,
-b.pageY);if(a.onMouseUp)a.onMouseUp(a);a.dragging=!1}},!1);document.addEventListener("mousemove",function(b){a.updateMouse(b.pageX,b.pageY);if(a.mouseX!=a.prevMouseX||a.mouseY!=a.prevMouseY)if(a.dragging&&a.onMouseDrag)a.onMouseDrag(a);else if(a.onMouseMove&&b.target==a.canvas)a.onMouseMove(a)},!1);document.addEventListener("touchstart",function(b){if(b.target==a.canvas){a.updateMouse(b.pageX,b.pageY);if(a.onMouseDown)a.onMouseDown(a);a.dragging=!0}},!1);document.addEventListener("touchend",function(b){if(a.onMouseUp)a.onMouseUp(a);
-a.dragging=!1},!1);document.addEventListener("touchmove",function(b){a.dragging&&(a.updateMouse(b.pageX,b.pageY),a.onMouseDrag(a),b.preventDefault())},!1);document.addEventListener("click",function(b){a.updateMouse(b.pageX,b.pageY);if(a.onMouseClick)a.onMouseClick(a)},!1);document.addEventListener("keydown",function(b){a.keyCode=b.keyCode;a.key=String.fromCharCode(a.keyCode);a.keysDown[a.keyCode]=!0;if(a.onKeyDown)a.onKeyDown(a)},!1);document.addEventListener("keyup",function(b){a.keyCode=b.keyCode;
-a.key=String.fromCharCode(a.keyCode);delete a.keysDown[a.keyCode];if(a.onKeyUp)a.onKeyUp(a)},!1);document.addEventListener("keypress",function(b){a.keyCode=b.keyCode;a.key=String.fromCharCode(a.keyCode);if(a.onKeyPress)a.onKeyPress(a)},!1);var f=0,l=k();m(h)}};
+// CopyRight (c) 2013 John Robinson - http://www.storminthecastle.com
 
+var Goo = function(o) {
+
+  var self = this;
+  
+    // Setup defaults
+  self.type = "2d";
+  self.animate = true;
+  self.fullscreen = false;
+  self.keysDown = {};
+  self.userData = {};
+
+  if (o) {
+   for (var p in o) {
+     if (!o.hasOwnProperty(p)) continue;
+     self[p] = o[p];
+   }
+  }
+  
+  self.canvas = document.createElement("canvas");
+  if (self.canvas)
+    self.ctx = self.canvas.getContext(self.type);
+
+  if (!self.canvas || !self.ctx && self.onFailure) {
+    self.onFailure();
+    return;
+  }
+  
+  self.canvas.width = self.width;
+  self.canvas.height = self.height;
+
+  if (self.__defineGetter__ && self.__defineSetter__) { 
+    self.__defineGetter__("width", function() {
+      return self.canvas.width;
+    });       
+    self.__defineSetter__("width", function(v) {
+      self.canvas.width = v;
+    });
+
+    self.__defineGetter__("height", function() {    
+      return self.canvas.height;
+    });       
+    self.__defineSetter__("height", function(v) {
+      self.canvas.height = v;
+    });
+  }
+  else if (Object.defineProperty) {  // Try the IE way
+    Object.defineProperty(self, "width", {
+      get: function() {
+        return self.canvas.width;
+      },
+      set: function(v) {
+        self.canvas.width = v;
+      }
+    });
+    Object.defineProperty(self, "height", {
+      get: function() {
+        return self.canvas.height;
+      },
+      set: function(v) {
+        self.canvas.height = v;
+      }
+    });
+  }
+
+  if (self.fullscreen) {
+    self.container = document.body;
+    document.body.style.margin = '0px';
+    document.body.style.padding = '0px';
+    document.body.style.overflow = 'hidden';            
+  }
+  
+  if (self.container) {
+    self.container.appendChild(self.canvas);
+  }
+  
+  // shim layer with setTimeout fallback
+  var requestAnimFrame = (function () {
+    var rAF = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame;
+    if (!rAF) {
+      rAF = function (callback) {
+        window.setTimeout(callback, 1000 / 30.0);
+      };
+    }
+    return rAF;
+  })();
+
+  var getTick = Date.now?Date.now: function () {
+      return new Date().getTime();
+    }
+
+  self.updateMouse = function(x, y) {
+    var self = this;
+    var obj = self.canvas;
+    while (obj) {
+      y -= obj.offsetTop;
+      x -= obj.offsetLeft;
+      obj = obj.offsetParent;
+    }    
+    self.prevMouseX = self.mouseX;
+    self.prevMouseY = self.mouseY;
+    self.mouseX = x;
+    self.mouseY = y;
+  }
+
+  document.addEventListener("mousedown", function(e) {
+      if (e.target == self.canvas) {
+        self.updateMouse(e.pageX, e.pageY);
+        if (self.onMouseDown)
+          self.onMouseDown(self);
+        self.dragging = true;
+      }
+    }, false);
+    
+  document.addEventListener("mouseup", function(e) {
+      if (self.dragging) {
+      self.updateMouse(e.pageX, e.pageY);
+      if (self.onMouseUp)
+        self.onMouseUp(self);
+      self.dragging = false;
+      }
+    }, false);
+    
+  document.addEventListener("mousemove", function(e) {
+      self.updateMouse(e.pageX, e.pageY);
+      if (self.mouseX != self.prevMouseX || self.mouseY != self.prevMouseY) {
+        if (self.dragging && self.onMouseDrag)
+          self.onMouseDrag(self);
+        else if (self.onMouseMove && e.target == self.canvas)
+          self.onMouseMove(self);
+      }
+    }, false);
+
+
+  document.addEventListener("touchstart", function(e) {
+      if (e.target == self.canvas) {
+        self.updateMouse(e.pageX, e.pageY);
+        if (self.onMouseDown)
+          self.onMouseDown(self);
+        self.dragging = true;
+      }
+    }, false);
+    
+  document.addEventListener("touchend", function(e) {
+      if (self.onMouseUp)
+        self.onMouseUp(self);
+      self.dragging = false;
+    }, false);
+          
+  document.addEventListener("touchmove", function(e) {
+      if (self.dragging)
+      {
+        self.updateMouse(e.pageX, e.pageY);
+        self.onMouseDrag(self);
+        e.preventDefault();
+      }
+      /* Doesn't really make sense
+      else if (self.onMouseMove && e.target == self.canvas)
+        self.onMouseMove(self);
+      */
+  }, false);
+    
+  document.addEventListener("click", function(e) {
+      self.updateMouse(e.pageX, e.pageY);
+      if (self.onMouseClick)
+        self.onMouseClick(self);
+    }, false);
+          
+  document.addEventListener("keydown", function(e) {
+      self.keyCode = e.keyCode;
+      self.key =  String.fromCharCode(self.keyCode);
+      self.keysDown[self.keyCode] = true;
+      if (self.onKeyDown) self.onKeyDown(self)
+    }, false);
+    
+  document.addEventListener("keyup", function(e) {
+      self.keyCode = e.keyCode;
+      self.key =  String.fromCharCode(self.keyCode);
+      delete self.keysDown[self.keyCode];
+      if (self.onKeyUp) self.onKeyUp(self)
+    }, false);
+
+  document.addEventListener("keypress", function(e) {
+      self.keyCode = e.keyCode;
+      self.key =  String.fromCharCode(self.keyCode);
+      if (self.onKeyPress) self.onKeyPress(self)
+    }, false);
+      
+   var sizeCanvas = (function() {
+    if (self.fullscreen) {
+      // This performs better than listening for resize events
+      var w = window.innerWidth;
+      var h = window.innerHeight;
+      if (self.canvas.width != w)
+        self.canvas.width = w;
+      if (self.canvas.height != h)
+        self.canvas.height = h;
+    }  
+  });
+  
+  var fpsCounter = 0;
+  var fpsStartTime = getTick();
+  
+  function update() {
+    sizeCanvas();
+    var tick = getTick();
+    if (self.onDraw) 
+      self.onDraw(self, tick);
+    if (self.animate) {
+      if (fpsCounter++ > 60) {
+        self.fps = fpsCounter / (tick-fpsStartTime) * 1000;
+        if (self.onFrameRate)
+          self.onFrameRate(self);
+        fpsCounter = 0;
+        fpsStartTime = tick;
+      }
+      requestAnimFrame(update);
+    }
+  };
+  requestAnimFrame(update);
+};
 module.exports = Goo;

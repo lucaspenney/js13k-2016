@@ -1,13 +1,12 @@
 //Entity
-//var Class = require('./class');
 var Vector = require('./vector');
-//var Angle = require('./angle');
+var Angle = require('./angle');
 
 class Entity {
   constructor(game, x, y) {
     this.game = game;
     this.pos = new Vector(x, y);
-    //this.rotation = new Angle();
+    this.rotation = new Angle();
     this.sprite = null;
     this.layer = 0;
     this.game.entities.push(this);

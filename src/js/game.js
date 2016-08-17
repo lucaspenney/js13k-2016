@@ -1,25 +1,25 @@
 //var Class = require('./class');
 var Player = require('./player');
 var Block = require('./block');
+var Save = require('./save');
+var Level = require('./level');
+var levels = require('./levels');
 
 class Game {
-  constructor() {
+  constructor(screen) {
+    this.screen = screen;
     this.entities = [];
-    this.entities.push(new Player(this, 0,0));
-    this.entities.push(new Block(this, 20,270));
-    this.entities.push(new Block(this, 150,350));
-    this.entities.push(new Block(this, 350,280));
-    this.entities.push(new Block(this, 550,320));
+    levels[0].load(this);
   } 
   update(input) {
     for (var i = this.entities.length - 1; i >= 0; i--) {
+      this.entities[i].update(input);
       this.entities[i].update(input);
     }
   }
   render(ctx, screen) {
     if (!ctx) return;
-    //screen.render(ctx, screen);
-    ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+    this.screen.render(ctx, screen);
     this.entities.sort(function(a, b) {
       if (a === null) return 1;
       if (b === null) return -1;
