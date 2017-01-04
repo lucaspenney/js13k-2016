@@ -14,9 +14,6 @@ class Screen {
     setCtx(ctx) {
         this.ctx = ctx;
     }
-    update() {
-
-    }
     setOffset(v) {
         this.offset = v.clone();
         if (v.x > 0) {
@@ -38,20 +35,19 @@ class Screen {
         if (v.y + - (this.height/2)> this.maxOffset.y) {
             this.offset.y = this.maxOffset.y;
         }
-
+        //this.offset.x = Math.floor(this.offset.x);
+        //this.offset.y = Math.floor(this.offset.y);
     }
     buildBackground() {
         this.backgroundCanvas = document.createElement('canvas');
-        this.backgroundCanvas.width = this.width * 10;
-        this.backgroundCanvas.height = this.height * 10;
+        this.backgroundCanvas.width = this.width *5;
+        this.backgroundCanvas.height = this.height * 5;
         this.backgroundCtx = this.backgroundCanvas.getContext('2d');
 
-        var colors = Color({ hue:"blue", luminosity:'dark', count:100});
+        var colors = Color({ hue:"blue", luminosity:'light', count:100});
         var blockSize = 25;
         for (var x=0;x<this.backgroundCanvas.width/blockSize;x++) {
             for (var y=0;y<this.backgroundCanvas.height/blockSize;y++) {
-                
-                
                 this.backgroundCtx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
                 this.backgroundCtx.globalAlpha = Math.random() * 0.2;
                 if (Math.random() > 0.2) {
@@ -60,14 +56,20 @@ class Screen {
                 
                 this.backgroundCtx.save();
                 if (Math.random() > 0.7) {
-                this.backgroundCtx.translate(y * blockSize,x * blockSize);
-                this.backgroundCtx.rotate(Math.PI * Math.random());
-                this.backgroundCtx.fillRect(0,0,blockSize,blockSize);                    
+                    this.backgroundCtx.translate(y * blockSize,x * blockSize);
+                    this.backgroundCtx.rotate(Math.PI * Math.random());
+                    this.backgroundCtx.fillRect(0,0,blockSize,blockSize);
                 }
-
                 this.backgroundCtx.restore(); 
             }
         }
+        /*
+        var image = this.backgroundCtx.getImageData(0,0,this.backgroundCanvas.width,this.backgroundCanvas.height);
+        for (var i=0;i<image.data.length;i+=4) {
+
+        }
+        this.backgroundCtx.putImageData(image, 0, 0);
+        */
     }
     render(ctx) {
         ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);

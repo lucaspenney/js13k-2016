@@ -10,6 +10,8 @@ var chalk = require('chalk');
 var watch = require('gulp-watch');
 var browserify = require('gulp-browserify');
 var babel = require('gulp-babel');
+var htmlreplace = require('gulp-html-replace');
+var through = require('through2');
 
 //Chalk colors
 var error = chalk.bold.red;
@@ -20,7 +22,7 @@ gulp.task('watch', (done) => {
 	gulp.watch('./src/js/**/*.js', gulp.series('build-js', 'zip', 'check'));
 	gulp.watch('./src/html/**/*.html', gulp.series('build-html', 'check'));
 	gulp.watch('./src/css/**/*.css', gulp.series('build-css', 'check'));
-	gulp.watch('./src/assets/**/*', gulp.series('build-assets', 'check'));
+	gulp.watch('./src/assets/**/*', gulp.series('build-html', 'check'));
 });
 
 gulp.task('init', (done) => {
@@ -56,6 +58,18 @@ gulp.task('build-js', gulp.series('compile-js', (done) => {
 
 gulp.task('build-html', (done) => {
 	return gulp.src('./src/html/**/*.html')
+	.pipe(htmlreplace({
+			images: {
+				src: gulp.src('./src/assets/img/*.gif')
+						.pipe(through.obj(function(file, enc, cb) {
+							var name = file.path.substr(file.path.lastIndexOf('/') + 1);
+							var data = new Buffer(file.contents).toString('base64');
+						file.contents = new Buffer('<img class="' + name + '" src="data:image/gif;base64,' + data + '">');
+						cb(null, file)
+					})),
+				tpl: '%s'
+			}
+		}))
 		.pipe(htmlmin({
 			collapseWhitespace: true
 		}))
@@ -69,8 +83,7 @@ gulp.task('build-css', (done) => {
 });
 
 gulp.task('build-assets', (done) => {
-	return gulp.src('./src/assets/**/*')
-		.pipe(gulp.dest('./build/assets/'));
+	done();
 });
 
 gulp.task('zip', (done) => {

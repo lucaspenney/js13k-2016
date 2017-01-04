@@ -1,4 +1,5 @@
 var Vector = require('./vector');
+var Eev = require('./eev');
 
 class Physics {
 	constructor(game, entity, bounds) {
@@ -9,22 +10,21 @@ class Physics {
 		this.rv = 0;
 		this.ra = 0;
 		this.maxVelocity = 7;
-		this.mass = 100;
 		this.bounds = bounds;
 		this.static = false;
 		this.timeScale = 1;
 		this.gravity = false;
 		this.standing = false;
+		this.events = new Eev();
 	}
 	update(entities) {
 		if (this.gravity) {
 			this.applyGravity();
 		}
-
-		this.applyDrag();
 		this.standing = false;
 
 		if (!this.static) {
+			this.applyDrag();
 			//Do collision and movement
 			var vel = this.vel.clone();
 			var collision = false;
@@ -50,7 +50,6 @@ class Physics {
 		//Reset acceleration as it's now been applied to the current velocity
 		this.accel = new Vector(0, 0);
 		this.ra = 0;
-		this.hasCollided = [];
 		if (Math.abs(this.vel.x) < 0.001) {
 			this.entity.pos.x = Math.round(this.entity.pos.x);	
 		}
@@ -60,15 +59,15 @@ class Physics {
 		
 	}
 	applyGravity() {
-		this.addVelocity(0, 0.14);
+		this.addVelocity(0, 0.35);
 	}
 	applyDrag() {
 		if (this.standing) {
 			this.vel.x *= 0.96;	
 		} else {
-			this.vel.x *= 0.99;
+			this.vel.x *= 0.98;
 		}
-		this.vel.y *= 0.97;
+		this.vel.y *= 0.95;
 	}
 	collide(entity, velocity) {
 		var e = entity.physics;
@@ -90,6 +89,9 @@ class Physics {
 			}
 		}
 
+		this.events.emit('collide', entity);
+		entity.physics.events.emit('collide', this.entity);
+
 		//if (this.eventManager.dispatch('pre-collide', this.entity, entity).indexOf(false) !== -1) return false;
 
 
@@ -108,9 +110,6 @@ class Physics {
 
 		this.vel.x += x;
 		this.vel.y += y;
-	}
-	on(event, func) {
-		//Add event listener for collision
 	}
 }
 module.exports = Physics;

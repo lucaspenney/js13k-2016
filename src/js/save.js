@@ -2,36 +2,42 @@ var Entity = require('./entity');
 var Physics = require('./physics');
 var BoundingBox = require('./boundingbox');
 var Sprite = require('./sprite');
+var Player = require('./player');
 
 class Save extends Entity {
 	constructor(game, x, y) {
 		super(game, x, y);
 		this.classname = "Player";
 		this.game = game;
-		this.sprite = new Sprite(this, './assets/img/floppy.gif');
-		this.physics = new Physics(this.game, this, new BoundingBox(this.game, this, 64, 16));
-		this.physics.static = true;
+		this.sprite = new Sprite(this, 'floppy.gif', 1.5);
+		//this.sprite.img = document.getElementsByTagName('img')[0];
+		//this.physics = new Physics(this.game, this, new BoundingBox(this.game, this, 16,16));
+		//this.physics.static = true;
 	}
 	update(input) {
-		this.physics.update();
+		//this.physics.update();
+		for (var i=0;i<this.game.entities.length;i++) {
+			if (this.game.entities[i] instanceof Player) {
+				if (this.game.entities[i].pos.distance(this.pos) < 40) {
+					this.game.entities[i].lastSave = this;
+				}
+			}
+		}
 	}
 	render(ctx, screen) {
-		this.sprite.animate((ctx2, tick) => {
-			for (var i = 0; i < this.sprite.height-1; i++) {
-				ctx2.globalAlpha = this.sprite.tick / 150;
-				if (this.sprite.tick > 100) {
-					ctx2.globalAlpha = 1 - (this.sprite.tick / 150);
-				}
-				ctx2.globalAlpha *= 0.5;
-				ctx2.fillStyle = "#FFF";
-				ctx2.fillRect(1, i, this.sprite.width-2, 2);
+		this.sprite.animate((data, tick) => {
+			for (var i=0;i<data.data.length;i+=4) {
+				//data.data[i] -= 1 * tick;
+				//data.data[i+1] += 10 * tick;
+				//data.data[i+2] += 10 * tick;
+				if (tick > 50) data.data[i+3] -= 1.5 * tick;
+				else data.data[i+3] -= 1.5 * (100 - tick);
 			}
-			this.sprite.tick++;
-			if (this.sprite.tick > 200) {
+			if (tick > 100) { 
 				this.sprite.tick = 0;
 			}
+			return data;
 		});
-		ctx.fillStyle = "#FF0000";
 		this.sprite.draw(ctx, screen, this.pos.x, this.pos.y);
 	}
 }
